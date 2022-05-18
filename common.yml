@@ -80,39 +80,14 @@ functions:
         PATH=$PATH:$HOME
         go run build.go -v ${target}
 
-  "download mongod":
-    command: shell.exec
+  "download mongod and shell":
+    command: subprocess.exec
     params:
       working_dir: src/github.com/mongodb/mongo-tools
-      script: |
-        set -x
-        set -v
-        set -e
-        mongotarget=$(if [ "${mongo_target}" ]; then echo "${mongo_target}"; else echo "${mongo_os}"; fi)
-        mongoversion=$(if [ "${mongo_version_always_use_latest}" ]; then echo "latest"; else echo "${mongo_version}"; fi)
-        PATH=/opt/mongodbtoolchain/v3/bin/:$PATH
-        python="python3"
-        if [ "Windows_NT" = "$OS" ]; then
-          python="py.exe -3"
-        fi
-        dlurl=$($python binaryurl.py --edition=${mongo_edition} --target=$mongotarget --version=$mongoversion --arch=${mongo_arch|x86_64})
-        filename=$(echo $dlurl | sed -e "s_.*/__")
-        mkdir -p bin
-        curl -s $dlurl --output $filename
-        ${decompress} $filename
-        rm $filename
-        if [ "${only_shell}" ]; then
-          mv -f ./mongodb-*/bin/mongo${extension} ./bin/
-        else
-          mv -f ./mongodb-*/bin/mongo${extension} ./bin/
-          mv -f ./mongodb-*/bin/mongos${extension} ./bin/
-          mv -f ./mongodb-*/bin/mongod${extension} ./bin/
-        fi
-        if [ "Windows_NT" = "$OS" ]; then
-          mv -f ./mongodb-*/bin/netsnmp.dll ./bin/
-        fi
-        chmod +x ./bin/*
-        rm -rf ./mongodb-*
+      binary: bash
+      args:
+        - "./scripts/download_mongod_and_shell.sh"
+      add_expansions_to_env: true
 
   "get buildnumber":
     command: keyval.inc
@@ -891,7 +866,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "3.4"
     - func: "start mongod"
@@ -908,7 +883,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "3.4"
     - func: "start mongod"
@@ -927,7 +902,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "3.6"
     - func: "start mongod"
@@ -944,7 +919,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "3.6"
     - func: "start mongod"
@@ -963,7 +938,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.0"
     - func: "start mongod"
@@ -985,7 +960,7 @@ tasks:
         updates:
           - key: "mongod_args"
             concat: " --auth"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.0"
     - func: "start mongod"
@@ -1003,7 +978,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.0"
     - func: "create repl_set"
@@ -1021,7 +996,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.0"
     - func: "start mongod"
@@ -1040,7 +1015,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.2"
     - func: "start mongod"
@@ -1066,7 +1041,7 @@ tasks:
         updates:
           - key: "mongod_args"
             concat: " --auth"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.2"
     - func: "start mongod"
@@ -1090,7 +1065,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.4"
     - func: "start mongod"
@@ -1116,7 +1091,7 @@ tasks:
         updates:
           - key: "mongod_args_tls"
             concat: " --auth"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.4"
     - func: "start mongod"
@@ -1140,7 +1115,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.4"
     - func: "create repl_set"
@@ -1158,7 +1133,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.0"
     - func: "start mongod"
@@ -1184,7 +1159,7 @@ tasks:
         updates:
           - key: "mongod_args_tls"
             concat: " --auth"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.0"
     - func: "start mongod"
@@ -1208,7 +1183,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.0"
     - func: "create repl_set"
@@ -1226,7 +1201,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.0"
     - func: "start mongod"
@@ -1246,7 +1221,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.1"
     - func: "start mongod"
@@ -1272,7 +1247,7 @@ tasks:
         updates:
           - key: "mongod_args_tls"
             concat: " --auth"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.1"
     - func: "start mongod"
@@ -1296,7 +1271,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.1"
     - func: "create repl_set"
@@ -1314,7 +1289,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.1"
     - func: "start mongod"
@@ -1334,7 +1309,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.2"
     - func: "start mongod"
@@ -1360,7 +1335,7 @@ tasks:
         updates:
           - key: "mongod_args_tls"
             concat: " --auth"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.2"
     - func: "start mongod"
@@ -1384,7 +1359,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.2"
     - func: "create repl_set"
@@ -1402,7 +1377,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.2"
     - func: "start mongod"
@@ -1422,7 +1397,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.3"
     - func: "start mongod"
@@ -1448,7 +1423,7 @@ tasks:
         updates:
           - key: "mongod_args_tls"
             concat: " --auth"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.3"
     - func: "start mongod"
@@ -1472,7 +1447,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.3"
     - func: "create repl_set"
@@ -1490,7 +1465,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.3"
     - func: "start mongod"
@@ -1510,7 +1485,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "6.0"
     - func: "start mongod"
@@ -1536,7 +1511,7 @@ tasks:
         updates:
           - key: "mongod_args_tls"
             concat: " --auth"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "6.0"
     - func: "start mongod"
@@ -1560,7 +1535,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "6.0"
     - func: "create repl_set"
@@ -1578,7 +1553,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "6.0"
     - func: "start mongod"
@@ -1598,7 +1573,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "latest"
     - func: "start mongod"
@@ -1624,7 +1599,7 @@ tasks:
         updates:
           - key: "mongod_args_tls"
             concat: " --auth"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "latest"
     - func: "start mongod"
@@ -1648,7 +1623,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "latest"
     - func: "create repl_set"
@@ -1666,7 +1641,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "latest"
     - func: "start mongod"
@@ -1686,7 +1661,7 @@ tasks:
   commands:
     - func: "fetch source"
     - command: expansions.update
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.4"
     - func: "start mongod"
@@ -1725,7 +1700,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.2"
     - func: "run make target"
@@ -1741,7 +1716,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.4"
     - func: "run make target"
@@ -1757,7 +1732,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.0"
     - func: "run make target"
@@ -1773,7 +1748,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.1"
     - func: "run make target"
@@ -1789,7 +1764,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.2"
     - func: "run make target"
@@ -1805,7 +1780,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.3"
     - func: "run make target"
@@ -1821,7 +1796,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "6.0"
     - func: "run make target"
@@ -1837,7 +1812,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "latest"
     - func: "run make target"
@@ -1907,7 +1882,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.0"
     - func: "run make target"
@@ -1924,7 +1899,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.1"
     - func: "run make target"
@@ -1941,7 +1916,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.2"
     - func: "run make target"
@@ -1958,7 +1933,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "5.3"
     - func: "run make target"
@@ -1975,7 +1950,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "6.0"
     - func: "run make target"
@@ -1992,7 +1967,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "latest"
     - func: "run make target"
@@ -2009,7 +1984,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.4"
     - func: "run make target"
@@ -2026,7 +2001,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.2"
     - func: "run make target"
@@ -2043,7 +2018,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.0"
     - func: "run make target"
@@ -2060,7 +2035,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "3.6"
     - func: "run make target"
@@ -2077,7 +2052,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "3.4"
     - func: "run make target"
@@ -2094,7 +2069,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "3.2"
     - func: "run make target"
@@ -2111,7 +2086,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.4"
     - func: "run make target"
@@ -2125,7 +2100,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.4"
     - func: "run make target"
@@ -2142,7 +2117,7 @@ tasks:
     - func: "fetch source"
     - func: "get buildnumber"
     - func: "setup credentials"
-    - func: "download mongod"
+    - func: "download mongod and shell"
       vars:
         mongo_version: "4.4"
     - func: "run make target"
