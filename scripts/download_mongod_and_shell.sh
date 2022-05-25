@@ -20,13 +20,18 @@ curl -s $dlurl --output $filename
 ${decompress} $filename
 rm $filename
 
-if [ "${only_shell}" ]; then
-  mv -f ./mongodb-*/bin/mongo${extension} ./bin/
+versionarray=(${mongoversion//./})
+# As of version 6.0, the shell is no longer shipped with the server binary
+# releases. We need to download the new mongosh binary instead.
+if [ "$mongoversion" == "latest" ] || (( ${versionarray[0]} >= 6 )); then
+    # the shell was built separately
 else
-  mv -f ./mongodb-*/bin/mongo${extension} ./bin/
-  mv -f ./mongodb-*/bin/mongos${extension} ./bin/
-  mv -f ./mongodb-*/bin/mongod${extension} ./bin/
+    mv -f ./mongodb-*/bin/mongo${extension} ./bin/
 fi
+
+mv -f ./mongodb-*/bin/mongos${extension} ./bin/
+mv -f ./mongodb-*/bin/mongod${extension} ./bin/
+
 if [ "Windows_NT" = "$OS" ]; then
   mv -f ./mongodb-*/bin/netsnmp.dll ./bin/
 fi

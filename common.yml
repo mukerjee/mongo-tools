@@ -861,6 +861,16 @@ tasks:
     - command: expansions.update
     - func: "generate full JSON feed"
 
+- name: build-6.0-shell
+  commands:
+    - command: subprocess.exec
+      params:
+        binary: bash
+        working_dir: src/github.com/mongodb/mongo-tools
+        args:
+          - "./scripts/compile_mongo_shell.sh"
+        add_expansions_to_env: true
+
 - name: integration-3.4
   tags: ["3.4"]
   commands:
@@ -1482,6 +1492,8 @@ tasks:
 
 - name: integration-6.0
   tags: ["6.0"]
+  depends_on:
+    - name: build-6.0-shell
   commands:
     - func: "fetch source"
     - command: expansions.update
@@ -2506,6 +2518,7 @@ buildvariants:
   - name: ".5.1"
   - name: ".5.2"
   - name: ".5.3"
+  - name: "build-6.0-shell"
   - name: ".6.0"
   - name: ".latest"
   - name: ".kerberos"
