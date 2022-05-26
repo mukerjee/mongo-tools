@@ -373,4 +373,12 @@ var platforms = []Platform{
 		Repos:     []string{RepoEnterprise},
 		BuildTags: []string{"ssl", "sasl", "gssapi", "failpoints"},
 	},
+	{
+		Name:      "rhel83",
+		Arch:      ArchS390x,
+		OS:        OSLinux,
+		Pkg:       PkgRPM,
+		Repos:     []string{RepoEnterprise},
+		BuildTags: []string{"ssl", "sasl", "gssapi", "failpoints"},
+	},
 }
